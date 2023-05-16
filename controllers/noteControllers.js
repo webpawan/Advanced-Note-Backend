@@ -1,14 +1,8 @@
 import Note from "../models/noteModel.js";
-import User from "../models/userModel.js";
 
 export const createNote = async (req, res) => {
   try {
-    const { title, body, tag, color, userId } = req.body;
-
-    if (!userId) {
-      console.log("userid param not sent with request");
-      res.status.send(400);
-    }
+    const { title, body, tag, color } = req.body;
 
     const newNote = await Note({
       title: title,
@@ -25,6 +19,20 @@ export const createNote = async (req, res) => {
     res.status(400).json({ message: "create not problem" });
   }
 };
+export const selectNote = async (req,res) =>{
+  const {noteId} = req.params;
+  if(!noteId){
+    res.status(400).json({"message":"note id not selected"})
+  }
+  try {
+    const note = await Note.findById(noteId);
+    res.status(200).json(note)
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "server error" });
+    
+  }
+}
 export const fetchNote = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -37,21 +45,17 @@ export const fetchNote = async (req, res) => {
     res.status(400).json({ message: "fetch not problem" });
   }
 };
-export const updateNoteTitle = async (req, res) => {
+export const updateNote = async (req, res) => {
   try {
-    const { title, noteId } = req.body;
-
-    if (!title || !noteId) {
-      res.status(400).json({ message: "filed are emptys" });
-    }
+    const { title, body, color, tag, noteId } = req.body;
 
     const newTitle = await Note.findByIdAndUpdate(
       noteId,
-      { title: title },
+      { title, body, color, tag },
       { new: true }
     );
     if (!newTitle) {
-      res.status(400).send("newtitle creating problem");
+      res.status(200).send("user did not change any value");
     } else {
       res.json(newTitle);
     }
@@ -59,72 +63,7 @@ export const updateNoteTitle = async (req, res) => {
     res.status(400).json({ message: "updateNoteTitle error" });
   }
 };
-export const updateNoteBody = async (req, res) => {
-  try {
-    const { body, noteId } = req.body;
 
-    if (!body || !noteId) {
-      res.status(400).json({ message: "field is empty" });
-    }
-
-    const newBody = await Note.findByIdAndUpdate(
-      noteId,
-      { body: body },
-      { new: true }
-    );
-    if (!newBody) {
-      res.status(400).json({ message: "body is not updated" });
-    } else {
-      res.status(200).json(newBody);
-    }
-  } catch (error) {
-    res.status(400).json({ message: " updateNotebody problem" });
-  }
-};
-export const updateNoteTag = async (req, res) => {
-  try {
-    const { tag, noteId } = req.body;
-
-    if (!tag || !noteId) {
-      res.status(400).json({ message: "field is empty" });
-    }
-
-    const newTag = await Note.findByIdAndUpdate(
-      noteId,
-      { tag: tag },
-      { new: true }
-    );
-    if (!newTag) {
-      res.status(400).json({ message: "Tag is not updated" });
-    } else {
-      res.status(200).json(newTag);
-    }
-  } catch (error) {
-    res.status(400).json({ message: " update tag problem" });
-  }
-};
-export const updateNoteColor = async (req, res) => {
-  try {
-    const { color, noteId } = req.body;
-
-    if (!color || !noteId) {
-      res.status(400).json({ message: "field is empty" });
-    }
-
-    const newColor = await Note.findByIdAndUpdate(
-      noteId,
-      { color: color },
-      { new: true }
-    );
-    if (!newColor) {
-      res.status(400).json({ message: "color is not updated" });
-    } else {
-      res.status(200).json(newColor);
-    }
-  } catch (error) {
-    res.status(400).json({ message: " color api problem" });
-  }
-};
 export const deleteNote = async (req, res) => {
   try {
     const noteId = req.params.noteId;
@@ -134,6 +73,6 @@ export const deleteNote = async (req, res) => {
     }
     res.status(200).json({ message: " successfully deleted" });
   } catch (error) {
-    res.status(400).send(error.message);
+   return res.status(400).send(error.message);
   }
 };
