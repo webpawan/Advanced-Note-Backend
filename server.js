@@ -16,3 +16,5 @@ app.use("/api/note", noteRoute);
 app.listen(PORT, () => {
   console.log("server start port number", PORT);
 });
+
+
